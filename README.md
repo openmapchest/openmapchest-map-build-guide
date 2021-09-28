@@ -18,7 +18,7 @@ the instructions are listed for united-states-northeast.
 
 **NOTE** Other Geofabrik regions work as well.
 
-## Prepare TIGER data for better address search in US maps
+## Prepare TIGER data for better address search - US only, optional
 
 This step is optional but does produce better results for the address search in US maps.
 
