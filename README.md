@@ -1,5 +1,7 @@
 # OpenMapChest map build guide
 
+Preface: I kindly ask that you don't use the OpenMapChest name in any of the maps you create with this guide. The OpenMapChest name is used exclusively for the maps distributed on https://www.openmapchest.org.
+
 This guide should work for all of Geofabrik's region extracts. The only caveat is that
 gmapsupp.img files for SD cards are limited to 4Gb, and as such, it's not possible to
 make gmappsup.img maps from the larger regions. "gmap" maps for BaseCamp don't have this
@@ -29,26 +31,23 @@ This step is optional but does produce better results for the address search in 
 
 ### TIGER: Data
 * https://download.geofabrik.de/north-america/us-northeast.poly
-* https://www.nominatim.org/data/tiger2019-nominatim-preprocessed.tar.gz
-
-**NOTE** The 2020 TIGER data does not work for building the maps and I haven't had time
-to debug the problem.
+* https://www.nominatim.org/data/tiger2021-nominatim-preprocessed.tar.gz
 
 ### TIGER: Procedure
-* Untar tiger2019-nominatim-preprocessed.tar.gz:
+* Untar tiger2021-nominatim-preprocessed.tar.gz:
 ```
-tar zxf tiger2019-nominatim-preprocessed.tar.gz
+tar zxf tiger2021-nominatim-preprocessed.tar.gz
 ```
 
 * Convert the SQL to an OSC file:
 ```
 cd tiger
-cat *.sql | ../tiger_versus_python/tiger_versus_python.py > usa-tiger-addresses-2019.osc
+cat *.sql | ../tiger_versus_python/tiger_versus_python.py > usa-tiger-addresses-2021.osc
 ```
 
 * Merge address OSC file into the OSM data:
 ```
-osmosis --read-xml-change file=<path to>/usa-tiger-addresses-2019.osc --read-pbf-fast \
+osmosis --read-xml-change file=<path to>/usa-tiger-addresses-2021.osc --read-pbf-fast \
   file=united-states-northeast-latest.pbf workers=3 --apply-change --write-pbf \
   omitmetadata=true file=<path to>/united-states-northeast-latest-addresses-merged.osm.pbf
 ```
@@ -80,8 +79,8 @@ java -jar <path to>/splitter.jar --geonames-file=<path to>/cities1000.zip \
 * mkgmap command to build gmapsupp.img for SD Cards:
 ```
 java -jar <path to>/mkgmap.jar --latin1 --gmapsupp --hide-gmapsupp-on-pc --index \
-  --route --series-name="OpenMapChest United States Northeast <YYYY.MM.DD>" \
-  --family-name="OpenMapChest United States Northeast" \
+  --route --series-name="United States Northeast <YYYY.MM.DD>" \
+  --family-name="United States Northeast" \
   --location-autofill=bounds,is_in,nearest --remove-ovm-work-files \
   --bounds=<path to>/bounds-latest.zip --precomp-sea=<path to>/sea-latest.zip \
   --add-pois-to-areas --process-destination --order-by-decreasing-area \
@@ -92,15 +91,15 @@ java -jar <path to>/mkgmap.jar --latin1 --gmapsupp --hide-gmapsupp-on-pc --index
   --reduce-point-density-polygon=8 --merge-lines --polygon-size-limits=24:12,18:10,16:8 \
   --drive-on=right --check-roundabouts --housenumbers \
   --style-file=<path to>/omc-mkgmap-style -c template.args \
-  --description="OpenMapChest United States Northeast <YYYY.MM.DD>" \
+  --description="United States Northeast <YYYY.MM.DD>" \
   <path to>/omc-typ.txt
 ```
 
 * mkgmap command to build gmap file for BaseCamp:
 ```
 java -jar <path to>/mkgmap.jar --latin1 --gmapi --index \
-  --route --series-name="OpenMapChest United States Northeast <YYYY.MM.DD>" \
-  --family-name="OpenMapChest United States Northeast" \
+  --route --series-name="United States Northeast <YYYY.MM.DD>" \
+  --family-name="United States Northeast" \
   --location-autofill=bounds,is_in,nearest --remove-ovm-work-files \
   --bounds=<path to>/bounds-latest.zip --precomp-sea=<path to>/sea-latest.zip \
   --add-pois-to-areas --process-destination --order-by-decreasing-area \
@@ -111,6 +110,6 @@ java -jar <path to>/mkgmap.jar --latin1 --gmapi --index \
   --reduce-point-density-polygon=8 --merge-lines --polygon-size-limits=24:12,18:10,16:8 \
   --drive-on=right --check-roundabouts --housenumbers \
   --style-file=<path to>/omc-mkgmap-style -c template.args \
-  --description="OpenMapChest United States Northeast <YYYY.MM.DD>" \
+  --description="United States Northeast <YYYY.MM.DD>" \
   <path to>/omc-typ.txt
 ```
