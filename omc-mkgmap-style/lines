@@ -27,14 +27,6 @@ highway=* & name=* {set mkgmap:street='${name}'}
 # Mark highways with the toll flag
 highway=* & (toll=yes | toll=true) {set mkgmap:toll=yes}
 
-# OpenMapChest
-# Remove sidewalks
-highway=footway & footway=sidewalk { deletealltags }
-highway=footway & footway=crossing { deletealltags }
-# Remove private driveways
-access=private & highway=service & service=driveway { deletealltags }
-# OpenMapChest
-
 # Hide proposed ways
 highway=proposed | highway=proposal | highway=planned | highway~'.*proposed.*' {delete highway; delete junction}
 # Hide removed ways
@@ -123,10 +115,20 @@ highway=path & (designation=permissive_bridleway | designation=public_bridleway)
     {set highway=bridleway; add foot=yes}
 highway=path & (designation=permissive_footpath | designation=public_footpath)
     {set highway=footway; add foot=designated}
+highway=footway & snowplowing!=no & (bicycle=yes | bicycle=designated | bicycle=permissive | bicycle=official | cycleway=lane)
+    {set highway=cycleway; set bicycle=yes; set foot=yes}
 highway=path & snowplowing!=no & (bicycle=designated | bicycle=permissive | bicycle=official | cycleway=lane)
     {set highway=cycleway; add foot=yes}
 highway=path & foot=designated
     {set highway=footway}
+
+# OpenMapChest
+# Remove sidewalks
+highway=footway & footway=sidewalk { deletealltags }
+highway=footway & footway=crossing { deletealltags }
+# Remove private driveways
+access=private & highway=service & service=driveway { deletealltags }
+# OpenMapChest
 
 leisure=track & area!=yes {name '${name} (${sport})' | '${sport}'} [0x30 resolution 22]
 man_made=pier | man_made=piste:halfpipe {add highway=footway; name '${ref} ${name}' | '${ref}' | '${name}'}
