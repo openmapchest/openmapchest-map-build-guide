@@ -25,11 +25,7 @@ the instructions are listed for united-states-northeast.
 This step is optional but does produce better results for the address search in US maps.
 
 ### TIGER: Software
-* https://github.com/openmapchest/tiger_versus_python/tree/convert-to-use-csv
-
-  **NOTE** The original tiger_versus_python code only supports the data from 2021 and eariler. PR to update it is pending.
-  
-  Original repo (doesn't work with latest data): https://github.com/linuxrocks123/tiger_versus_python
+* https://github.com/linuxrocks123/tiger_versus_python
 * https://wiki.openstreetmap.org/wiki/Osmosis
 * https://gitlab.com/osm-c-tools/osmctools
 
