@@ -53,9 +53,11 @@ operator=* & brand!=* & (highway=bus_stop | railway=tram_stop | railway=halt | r
 # OpenMapChest
 
 # OpenMapChest: Some name fixes.
-operator=* & brand=* { name '${brand}' | '${ref}' }
+# The int_name/name:int/name:en tags are only present for the tag that is being used for name.
+# This is the same order used in the mkgmap option: "--name-tag-list=int_name,name:int,name:en,name"
+operator=* & brand=* { name '${int_name}' | '${name:int}' | '${name:en}' | '${brand}' | '${ref}' }
 operator=* & brand!=* { name '${name}' | '${ref}' }
-brand=* & operator!=* { name '${brand}' | '${ref}' }
+brand=* & operator!=* { name '${int_name}' | '${name:int}' | '${name:en}' | '${brand}' | '${ref}' }
 
 name='British Petroleum' { name 'BP' }
 name='The Home Depot' { name 'Home Depot' }

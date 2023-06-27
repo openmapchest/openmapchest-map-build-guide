@@ -25,6 +25,11 @@ mkgmap:country=DEU & mkgmap:city!=* & mkgmap:admin_level6=* { set mkgmap:city='$
 mkgmap:country=DEU & mkgmap:city!=* & mkgmap:admin_level9=* { set mkgmap:city='${mkgmap:admin_level9|subst:Gemeinde |subst:Stadt }' }
 mkgmap:country=DEU & mkgmap:city!=* & mkgmap:admin_level10=* { set mkgmap:city='${mkgmap:admin_level10|subst:Gemeinde |subst:Stadt }' }
 
+# OpenMapChest: Add ACT suburbs
+# Austrailia = AUS
+mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level4='Australian Capital Territory' & mkgmap:admin_level9=* {set mkgmap:city='${mkgmap:admin_level9}' }
+mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level4='Australian Capital Territory' & mkgmap:admin_level7=* {set mkgmap:city='${mkgmap:admin_level7|subst:District of }' }
+# OpenMapChest: END
 
 # Austria = AUT
 mkgmap:country=AUT & mkgmap:city!=* & mkgmap:admin_level4=Wien {set mkgmap:city='${mkgmap:admin_level4}' }
@@ -59,7 +64,7 @@ mkgmap:country=CHE & mkgmap:city!=* & mkgmap:admin_level8=* { set mkgmap:city='$
 # Canada
 mkgmap:country=CAN & mkgmap:region!=* & mkgmap:admin_level4=* { set mkgmap:region='${mkgmap:admin_level4}' }
 # OpenMapChest: Workaround for 'Old Toronto' boundary name.
-mkgmap:country=CAN & mkgmap:city!=* & mkgmap:admin_level8=Toronto & mkgmap:admin_level9='Old Toronto' { set mkgmap:city='Toronto' }
+mkgmap:country=CAN & mkgmap:city!=* & mkgmap:admin_level6=Toronto & mkgmap:admin_level8='Old Toronto' { set mkgmap:city='Toronto' }
 # OpenMapChest
 mkgmap:country=CAN & mkgmap:city!=* & mkgmap:admin_level8=Toronto & mkgmap:admin_level9=* { set mkgmap:city='${mkgmap:admin_level9}' }
 mkgmap:country=CAN & mkgmap:city!=* & mkgmap:admin_level8=Ottawa & mkgmap:admin_level9=* { set mkgmap:city='${mkgmap:admin_level9}' }
@@ -113,6 +118,11 @@ mkgmap:region!=* & mkgmap:admin_level5=* { set mkgmap:region='${mkgmap:admin_lev
 mkgmap:region!=* & mkgmap:admin_level4=* { set mkgmap:region='${mkgmap:admin_level4}' } 
 mkgmap:region!=* & mkgmap:admin_level3=* { set mkgmap:region='${mkgmap:admin_level3}' } 
 mkgmap:region!=* & is_in:county=* { set mkgmap:region='${is_in:county}' } 
+
+# https://www.mkgmap.org.uk/pipermail/mkgmap-dev/2023q2/034072.html
+# Great Britain. Many Towns/Villages have there names in level10, not in level8
+# Todo: Maybe add mkgmap:admin_level4=England to selection?
+mkgmap:country=GBR & mkgmap:city!=* & mkgmap:admin_level10=* { set mkgmap:city='${mkgmap:admin_level10}' }
 
 mkgmap:city!=* & mkgmap:admin_level8=* { set mkgmap:city='${mkgmap:admin_level8}' } 
 mkgmap:city!=* & mkgmap:admin_level7=* { set mkgmap:city='${mkgmap:admin_level7}' } 

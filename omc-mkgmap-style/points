@@ -112,11 +112,14 @@ place=town & population >      0 & name=* [0x0b00 resolution 20]
 place=town                       & name=* [0x0800 resolution 19]
 
 place=village                    & name=* [0x0900 resolution 22]
+# OpenMapChest: No cities for neighbourhoods in Amsterdam
+mkgmap:city!=Amsterdam &
 place=suburb                     & name=* [0x0a00 resolution 22]
+# OpenMapChest: End
 place=hamlet                     & name=* [0x0b00 resolution 24]
 # OpenMapChest
 place=locality                   & name=* [0x0c00 resolution 24]
-# OpenMapChest
+# OpenMapChest: End
 
 place=island & name=* [0x650c resolution 20]
 place=islet  & name=* [0x650c resolution 22]
@@ -134,7 +137,9 @@ amenity=atm & operator!='Bitcoin of America' [0x2f06 resolution 24 continue]
 amenity=arts_centre [0x2c04 resolution 24]
 amenity=bank [0x2f06 resolution 24]
 amenity=bar [0x2d02 resolution 24 continue]
-amenity=bench [0x6605 resolution 24 continue]
+# OpenMapChest: Don't include benches.
+#amenity=bench [0x6605 resolution 24 continue]
+# OpenMapChest: End
 amenity=biergarten [0x2d02 resolution 24]
 amenity=border_control | barrier=border_control [0x3006 resolution 20]
 amenity=bus_station [0x2f08 resolution 23]
@@ -346,11 +351,13 @@ tourism=zoo [0x2c07 resolution 24]
 tourism=* & name!=* & tourism!=yes & tourism!=no {set name='${tourism|subst:"_=> "}'}
 tourism=* & tourism!=no & tmp:stopMopUp!=yes [0x2c0d resolution 24]
 
+# OpenMapChest: Move to below cuisine so that categories for bagel and donut shops work.
 # amenity=restaurant/fast_food/cafe/pub and shop=* can use cuisine, so have cuisine section later than where the others
 # should take precedence
 # Have the following 2 lines here rather than after cuisine=... so that, for amenity=fast_food, cuisine is ignored
 #amenity=fast_food & cuisine=* {add name='${cuisine|subst:"_=> "}'} [0x2a07 resolution 24]
 #amenity=fast_food [0x2a07 resolution 24]
+# OpenMapChest
 
 # "Food & Drink" Search has categories as follows, corresponding to 0x2a00 - 0x2a13:
 #   All, American, Asian, Barbeque, Chinese, Deli/Bakery, International, Fast Food, Italian, Mexican, Pizza,
@@ -381,7 +388,7 @@ cuisine=seafood | cuisine=sea_food | cuisine=fish
     [0x2a0b resolution 24]
 cuisine=steak | cuisine=grill | cuisine=steak_house
     [0x2a0c resolution 24]
-# OpenMapChest
+# OpenMapChest: This makes categories for bagel and donut shops work.
 cuisine=bagel | cuisine~'.*donut.*'
     [0x2a0d resolution 24]
 # OpenMapChest
@@ -400,7 +407,7 @@ amenity=restaurant {add name='${cuisine|subst:"_=> "}'}
 #common ones not handled:
 # ice_cream,greek,turkish,noodle,portugese,pasties,lebanese,brazilian,mediterranean,oriental,caribbean,vegetarian
 
-# OpenMapChest
+# OpenMapChest: This makes categories for bagel and donut shops work.
 # Have the following 2 lines here rather than before cuisine=... so that, for amenity=fast_food, cuisine is respected
 amenity=fast_food & cuisine=* {add name='${cuisine|subst:"_=> "}'} [0x2a07 resolution 24]
 amenity=fast_food [0x2a07 resolution 24]
@@ -433,7 +440,7 @@ natural=wetland & name=* [0x6513 resolution 24]
 landuse=cemetery | landuse=cemetary | amenity=grave_yard [0x6403 resolution 24]
 (landuse=wood | landuse=forest | natural=wood) & name=* [0x6618 resolution 24]
 
-# OpenMapChest
+# OpenMapChest: Extra POIs.
 building=yes [0x6402 resolution 24]
 landuse=retail & name=* [0x2e00 resolution 20]
 landuse=residential & name=* [0x6400 resolution 20]

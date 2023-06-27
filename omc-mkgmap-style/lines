@@ -267,10 +267,11 @@ highway=rest_area | highway=services {set tmp:stopMopUp=yes}
 # It is considered best not to process unrecognised highway types
 #highway=* & area!=yes & tmp:stopMopUp!=yes [0x07 road_class=0 road_speed=0 resolution 23]
 
-natural=coastline [0x15 resolution 12]
+# Showing the coastline adds almost nothing visuals of the map, so it's disabled:
+#natural=coastline [0x15 resolution 12]
 power=line [0x29 resolution 21]
 
-railway=platform [0x16 road_class=0 road_speed=0 resolution 23]
+railway=platform & tmp:stopMopUp!=yes [0x16 road_class=0 road_speed=0 resolution 23]
 # Railway lines, note that many devices display type 0x14 only at resolution 24
 (railway=rail | railway=tram | railway=disused | railway=subway | railway=narrow_gauge | railway=light_rail | railway=preserved) & !(tunnel=yes)
     [0x14 resolution 22]
@@ -296,6 +297,7 @@ route=ferry {set mkgmap:numbers=false; set mkgmap:ferry=1; add mkgmap:toll=yes}
 route=ferry & (motorcar=no | motor_vehicle=no) [0x1b road_class=0 road_speed=0 resolution 23]
 route=ferry [0x1a road_class=3 road_speed=0 resolution 19]
 
+(waterway=river | waterway=stream | waterway=rapids | waterway=waterfall) {add mkgmap:has-direction=true}
 (waterway=river | waterway=canal) & intermittent=yes [0x26 resolution 20]
 (waterway=stream | waterway=drain) & intermittent=yes [0x26 resolution 22]
 
@@ -328,32 +330,79 @@ mkgmap:bicycle=yes & (mkgmap:foot=no & mkgmap:car=no & mkgmap:street!=* | mkgmap
 # OpenMapChest: Highway shields for the United States.
 # Regex tester:
 # http://www.myregexp.com/signedJar.html
+
+# US Interstates
+# NOT WORKING mkgmap can't use (?:xx)
+# This matches the first interstate found and doesn't deal with duplicates.
+# All highways in the US that aren't link roads and have a ref in the "I XX" format.
+# mkgmap:admin_level2=USA & highway=* & highway~'^(?!.*_link).*$' & ref~'(?:I(-| )*(\d+))'
+#  {
+#  	set usa_interstate_numbers='${ref|subst:"(?:I(-| )*(\d+))~>$2"}';
+#    set usa_interstate=true;
+#   }
+#usa_interstate_numbers=*
+#  { name '${usa_interstate_numbers|highway-symbol:interstate}'; addlabel 'I-${usa_interstate_numbers}'; }
+
+# I don't know how duplicates work with this solution.
+# US Interstates
+network=US:I & mkgmap:us_interstate=*
+  { name '${mkgmap:us_interstate|highway-symbol:interstate}'; addlabel 'I-${mkgmap:us_interstate}'; }
+
+# US Route Highways
+network=US:US & mkgmap:us_usroute=*
+  { name '${mkgmap:us_usroute|highway-symbol:shield}'; addlabel 'US ${mkgmap:us_usroute}' }
+
+# US State Highways
+network!='US:US' & mkgmap:us_state=*
+  { name '${mkgmap:us_state|highway-symbol:round}'; addlabel '${name}' | 'Hwy ${mkgmap:us_state}'; }
+
+# Fallback + processing for US shields.
 # All highways in the US that aren't link roads and have a reference in the expected format.
-mkgmap:admin_level2=USA & highway=* & highway~'^(?!.*_link).*$' & ref~'^[A-Z]+(-| )*\d+$'
-  { set usa_hwy_ref_numbers='${ref|subst:"^([A-Z]+)(-| )*(\d+)~>$3"}'; set usa_hwy_ref_letters='${ref|subst:"^([A-Z]+)(-| )*(\d+)~>$1"}' }
+mkgmap:admin_level2=USA & highway=* & mkgmap:label:1!=* & mkgmap:label:2!=* & highway~'^(?!.*_link).*$' & ref~'^[A-Z]+(-| )*\d+;?'
+  {
+  	set usa_hwy_ref_numbers='${ref|subst:"^([A-Z]+)(-| )*(\d+)~>$3"}';
+    set usa_hwy_ref_letters='${ref|subst:"^([A-Z]+)(-| )*(\d+)~>$1"}';
+    set usa_hwy_ref_combined_dash='${ref|subst:"^([A-Z]+)(-| )*(\d+)~>$1-$3"}'
+  }
 usa_hwy_ref_letters=I
-  { name '${usa_hwy_ref_numbers|highway-symbol:interstate}'; addlabel 'I-${usa_hwy_ref_numbers}' }
+  { name '${usa_hwy_ref_numbers|highway-symbol:interstate}'; addlabel 'I-${usa_hwy_ref_numbers}'; echotags "Fallback US Interstate used"; }
 usa_hwy_ref_letters=US
-  { name '${usa_hwy_ref_numbers|highway-symbol:shield}'; addlabel 'US ${usa_hwy_ref_numbers}' }
-# State highways are prefixed in OSM with SR or the state code.
+  { name '${usa_hwy_ref_numbers|highway-symbol:shield}'; addlabel 'US ${usa_hwy_ref_numbers}'; echotags "Fallback US Route used"; }
+# State highways are prefixed in OSM with SR, the state code, or M in Michigan.
 usa_hwy_ref_letters~'SR|AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|M|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY'
-  { name '${usa_hwy_ref_numbers|highway-symbol:round} ${name}'; addlabel 'Hwy ${usa_hwy_ref_numbers}' }
+  { name '${usa_hwy_ref_numbers|highway-symbol:round}'; addlabel '${name}' | 'Hwy ${usa_hwy_ref_numbers}'; echotags "Fallback State Highway used"; }
 
+# Might need this for ref=I 78;NJTP or multiple interstates ... WIP
+#mkgmap:admin_level2=USA & mkgmap:admin_level4='New Jersey' & highway=* & mkgmap:label:1!=* & mkgmap:label:2!=* & highway~'^(?!.*_link).*$' & ref~'(?:I[ \-]*\d+)'
+#  {
+#  $0 gets full match don't know what it would do with 2 interstates.
+#  	set usa_interstate_ref_number='${ref|subst:"(?:I[ \-]*\d+)~>$0"}';
+#	 	name '${usa_interstate_ref_number|highway-symbol:interstate}'; addlabel 'I-${usa_interstate_ref_number}'; echotags "Fallback 2 US Interstate used";
+#  }
+
+# Some States have minor road references that should also have a symbol.
+# NJ: CR - Note: The dash is removed eventhough the docs say only spaces are removed.
+mkgmap:admin_level2=USA & mkgmap:admin_level4='New Jersey' & usa_hwy_ref_letters=CR
+  { name '${usa_hwy_ref_combined_dash|highway-symbol:oval}'; addlabel 'CR-${usa_hwy_ref_numbers} ${name}' | 'CR-${usa_hwy_ref_numbers}'; }
+
+# Debugging.
+# mkgmap:admin_level4='New Jersey' & usa_hwy_ref_combined_dash=CR-633 { echotags xxx }
+# ref='I 78;NJTP' { echotags xxx }
+
+# Disabled because it probably didn't work.
 # Experiment for Interstates with 2 numbers:
-mkgmap:admin_level2=USA & highway=* & highway~'^(?!.*_link).*$' & ref~';?I(?:-| )*(\d+)'
-  { set usa_interstate_shield_number='${ref|subst:";?I(?:-| )*(\d+)~>$1/"|subst:"(.*)\/$~>$1"}';
-    set usa_interstate_name='${ref|subst:";?I(?:-| )*(\d+)~>I-$1/"|subst:"(.*)\/$~>$1"}';
-    set usa_interstate=true }
-usa_interstate=true & name!=*
-  { name '${usa_interstate_shield_number|highway-symbol:interstate}'; addlabel '${usa_interstate_name}' }
+# mkgmap:admin_level2=USA & highway=* & highway~'^(?!.*_link).*$' & ref~';?I(?:-| )*(\d+)'
+#  { set usa_interstate_shield_number='${ref|subst:";?I(?:-| )*(\d+)~>$1/"|subst:"(.*)\/$~>$1"}';
+#    set usa_interstate_name='${ref|subst:";?I(?:-| )*(\d+)~>I-$1/"|subst:"(.*)\/$~>$1"}';
+#    set usa_interstate=true }
+# usa_interstate=true & name!=*
+#  { name '${usa_interstate_shield_number|highway-symbol:interstate}'; addlabel '${usa_interstate_name}' }
 
-# OpenMapChest
+# Previoulsy added oval sheild to highway=unclassified and highway=track as well. Could be re-added below with
+# (highway=secondary | highway=tertiary | highway=unclassified | highway=track) & ref=* {name '${ref|highway-symbol:oval}'; addlabel '${name}'}
+# highway=* & ref=* & highway!=motorway & highway!=trunk & highway!=primary & highway!=secondary & highway!=tertiary & highway=unclassified & highway=track
 
-# OpenMapChest: Don't add ref to name; add oval sheild to highway=unclassified and highway=track
-highway=trunk {name '${ref|highway-symbol:hbox} ${name}' | '${ref|highway-symbol:hbox}' | '${name}'; addlabel '${name}' }
-highway=primary {name '${ref|highway-symbol:box} ${name}' | '${ref|highway-symbol:box}' | '${name}'; addlabel '${name}' }
-highway=secondary | highway=tertiary | highway=unclassified | highway=track {name '${ref|highway-symbol:oval} ${name}' | '${ref|highway-symbol:oval}' | '${name}'; addlabel '${name}' }
-# OpenMapChest
+# OpenMapChest: END
 
 # Display highway shield for mayor roads if they have a ref and make them searchable by their name
 (highway=motorway | highway=trunk)     & ref=* {name '${ref|highway-symbol:hbox}'; addlabel '${name}'}
