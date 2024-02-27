@@ -31,23 +31,23 @@ This step is optional but does produce better results for the address search in 
 
 ### TIGER: Data
 * https://download.geofabrik.de/north-america/us-northeast.poly
-* https://www.nominatim.org/data/tiger2022-nominatim-preprocessed.csv.tar.gz 
+* https://www.nominatim.org/data/tiger2023-nominatim-preprocessed.csv.tar.gz 
 
 ### TIGER: Procedure
-* Untar tiger2022-nominatim-preprocessed.csv.tar.gz:
+* Untar tiger2023-nominatim-preprocessed.csv.tar.gz:
 ```
-tar zxf tiger2022-nominatim-preprocessed.csv.tar.gz
+tar zxf tiger2023-nominatim-preprocessed.csv.tar.gz
 ```
 
-* Convert the SQL to an OSC file:
+* Convert the nominatim TIGER CSV to an OSC file:
 ```
 cd tiger
-cat *.csv | ../tiger_versus_python/tiger_versus_python.py > usa-tiger-addresses-2022.osc
+cat *.csv | ../tiger_versus_python/tiger_versus_python.py > usa-tiger-addresses-2023.osc
 ```
 
 * Merge address OSC file into the OSM data:
 ```
-osmosis --read-xml-change file=<path to>/usa-tiger-addresses-2022.osc --read-pbf-fast \
+osmosis --read-xml-change file=<path to>/usa-tiger-addresses-2023.osc --read-pbf-fast \
   file=united-states-northeast-latest.pbf workers=3 --apply-change --write-pbf \
   omitmetadata=true file=<path to>/united-states-northeast-latest-addresses-merged.osm.pbf
 ```
