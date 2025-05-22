@@ -1,5 +1,7 @@
 # OpenMapChest map build guide
 
+**The mkgmap style file in this repo is not up-to-date with the style file used to make maps currently available on OpenMapChest. You may see some differences in your maps compared to the pre-compiled versions.**
+
 Preface: I kindly ask that you don't use the OpenMapChest name in any of the maps you create with this guide. The OpenMapChest name is used exclusively for the maps distributed on https://www.openmapchest.org.
 
 This guide should work for all of Geofabrik's region extracts. The only caveat is that
