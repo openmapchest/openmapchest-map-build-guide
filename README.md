@@ -10,7 +10,7 @@ I made one last update and these instructions still work to produce a decent map
 you will see some differences in your maps compared to the pre-compiled versions on https://openmapchest.org. These differences will
 increase over time.
 
-- Ben, June 3, 2025
+-- Ben, June 3, 2025
 
 # OpenMapChest map build guide
 
