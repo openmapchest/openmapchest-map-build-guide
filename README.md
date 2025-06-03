@@ -1,6 +1,18 @@
-# OpenMapChest map build guide
+# No longer maintained
 
-**The mkgmap style file in this repo is not up-to-date with the style file used to make maps currently available on OpenMapChest. You may see some differences in your maps compared to the pre-compiled versions.**
+These instructions are no longer maintained and I will eventually archive and/or remove this repo.
+There had been very little interest in this and it's not worth the effort to keep it up-to-date.
+
+I periodically post patches to the mkgmap-dev list, but the development not very active so I don't know if my changes
+will ever be integrated into mkgmap.
+
+I made one last update and these instructions still work to produce a decent map. But of course, 
+you will see some differences in your maps compared to the pre-compiled versions on https://openmapchest.org. These differences will
+increase over time.
+
+- Ben, June 3, 2025
+
+# OpenMapChest map build guide
 
 Preface: I kindly ask that you don't use the OpenMapChest name in any of the maps you create with this guide. The OpenMapChest name is used exclusively for the maps distributed on https://www.openmapchest.org.
 
