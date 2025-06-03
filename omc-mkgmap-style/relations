@@ -62,6 +62,25 @@ route=road & network=e-road {
 	}
 }
 
+# OpenMapChest: Add NL road network
+# Netherlands
+type=route & route=road & historic!=yes & network=NL:N
+{
+    apply {
+        set mkgmap:nl_nroad='$(mkgmap:nl_nroad);${ref|not-contained:;:mkgmap:nl_nroad}' | '$(mkgmap:nl_nroad)' | '${ref}';
+        add network='NL:N';
+    }
+}
+type=route & route=road & historic!=yes & network=NL:A
+{
+    apply {
+        set mkgmap:nl_highway='$(mkgmap:nl_highway);${ref|not-contained:;:mkgmap:nl_highway}' | '$(mkgmap:nl_highway)' | '${ref}';
+        add network='NL:A';
+				add mkgmap:fast_road=yes;
+    }
+}
+# OpenMapChest: END
+
 #USA road network
 type=route & route=road & historic!=yes & network=US:I
 {
@@ -93,7 +112,8 @@ type=route & route=road & historic!=yes & network~'US:US:.*'
         add mkgmap:fast_road=yes;
     }
 }
-type=route & route=road & historic!=yes & network~'US:.*' & !(network=US:I | network=US:US | network~'US:.*:.*')
+# OpenMapChest: Match only the State Roads (e.g. US:MT). Note: 'US:.*:.*' matches the inner-state roads (e.g. US:MT:secondary).
+type=route & route=road & historic!=yes & network~'US:[A-Z][A-Z]' & !(network=US:I | network=US:US | network~'US:.*:.*')
 {
     apply {
         add mkgmap:us_state='$(mkgmap:us_state);${ref|not-contained:;:mkgmap:us_state}' | '$(mkgmap:us_state)' | '${ref}';

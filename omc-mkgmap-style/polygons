@@ -13,6 +13,12 @@ addr:housenumber=* {set mkgmap:execute_finalize_rules=true}
 leisure=* & sport=* & name=* {set name='${name} (${sport})'}
 leisure=* & sport=* & name!=* {add name='${sport}'}
 
+# OpenMapChest: Correct Devil's Lake name.
+# https://www.openstreetmap.org/way/35745209#map=14/43.41776/-89.73287
+mkgmap:admin_level2=USA & mkgmap:admin_level4=Wisconsin & natural=water & water=lake & name="Spirit Lake"
+  { set name="Devil's Lake"; echotags "Rename Spirit Lake -> Devil's Lake"; }
+# OpenMapChest: END
+
 include 'inc/name';
 
 # OpenMapChest: Remove some less useful polygons to try to make US maps smaller

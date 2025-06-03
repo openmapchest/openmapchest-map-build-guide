@@ -78,3 +78,9 @@ access=* { addaccess '${access}' }
 # Don't route through highway=construction, they are considered unusable 
 highway=construction {setaccess no}
 
+# OpenMapChest: Mark 4wd_only ways as unroutable.
+# Don't route through any way marked with 4wd_only as they are not meant for regular traffic.
+# https://wiki.openstreetmap.org/wiki/Key:4wd%20only?uselang=en
+# https://taginfo.openstreetmap.org/keys/4wd_only#values
+4wd_only=* & 4wd_only!=no {setaccess no}
+# OpenMapChest: END

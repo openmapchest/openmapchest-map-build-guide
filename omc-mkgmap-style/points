@@ -67,14 +67,15 @@ barrier=gate | barrier=lift_gate | barrier=swing_gate {
 barrier=* {add mkgmap:road-speed=1}
 barrier=* & access=* {addaccess '${access|subst:private=>no}'}
 
-# OpenMapChest
-# Remove unnamed generated POIs for buildings.
+# OpenMapChest: Remove unnamed generated POIs for buildings.
 mkgmap:area2poi=true & name!=* & building=yes {deletealltags}
-# OpenMapChest
+# OpenMapChest: END
 
 internet_access=yes {name 'Internet ${name}' | 'Internet'} [0x2f12 resolution 24 continue]
+# OpenMapChest: Use wifi instead of wlan.
 internet_access=* & internet_access!=no & internet_access!=yes
-    {name 'Internet(${internet_access}) ${name}' | 'Internet(${internet_access})'} [0x2f12 resolution 24 continue]
+    {name 'Internet(${internet_access|subst:"wlan=>wifi"}) ${name}' | 'Internet(${internet_access|subst:"wlan=>wifi"})'} [0x2f12 resolution 24 continue]
+# OpenMapChest: END
 
 (public_transport=platform | highway=bus_stop | railway=tram_stop | railway=halt | railway=station)
     & (ref=* | route_ref=*)
@@ -115,10 +116,15 @@ place=village                    & name=* [0x0900 resolution 22]
 # OpenMapChest: No cities for neighbourhoods in Amsterdam
 mkgmap:city!=Amsterdam &
 place=suburb                     & name=* [0x0a00 resolution 22]
-# OpenMapChest: End
-place=hamlet                     & name=* [0x0b00 resolution 24]
-# OpenMapChest
-place=locality                   & name=* [0x0c00 resolution 24]
+# Add isolated_dwelling
+# TODO contribute isolated_dwelling to mkgmap
+(place=hamlet | place=isolated_dwelling)
+                                 & name=* [0x0b00 resolution 24]
+# In general "Point of Interest" category: 0x5F00 - 0x5FFF
+(place=locality | place=neighbourhood | (mkgmap:city=Amsterdam & place=suburb))
+                                 & name=* [0x5F00 resolution 24]
+# TODO contribute farm to mkgmap
+place=farm                       & name=* [0x5F01 resolution 24]
 # OpenMapChest: End
 
 place=island & name=* [0x650c resolution 20]
@@ -264,15 +270,20 @@ public_transport=platform & (mkgmap:line2poi!=true | mkgmap:line2poitype=mid) [0
 highway=bus_stop | railway=tram_stop [0x2f17 resolution 24]
 
 shop=* & name!=* & shop!=yes & shop!=no & shop!=none & shop!=vacant {set name='${shop|subst:"_=> "}'}
+# OpenMapChest: Uncommented extra shops
 # Uncomment the following lines to enable these extra POI that some devices support
-#shop=convenience [0x2e0e resolution 24]
-#shop=florist [0x2e0f resolution 24]
-#shop=gift | shop=art | shop=antiques [0x2e10 resolution 24]
-#shop=music [0x2e11 resolution 24]
-#shop=sports [0x2e12 resolution 24]
-#shop=wine | shop=alcohol [0x2e13 resolution 24]
-#shop=books [0x2e14 resolution 24]
+# OMC: Added shop=kiosk
+# https://www.mkgmap.org.uk/pipermail/mkgmap-dev/2021q4/033374.html
+# https://taginfo.openstreetmap.org/keys/shop#values
+shop=convenience | shop=kiosk [0x2e0e resolution 24]
+shop=florist [0x2e0f resolution 24]
+shop=gift | shop=art | shop=antiques [0x2e10 resolution 24]
+shop=music [0x2e11 resolution 24]
+shop=sports [0x2e12 resolution 24]
+shop=wine | shop=alcohol [0x2e13 resolution 24]
+shop=books [0x2e14 resolution 24]
 # to here
+# OpenMapChest: end
 
 shop=bakers [0x2e02 resolution 24]
 shop=bakery [0x2e02 resolution 24]
@@ -391,7 +402,7 @@ cuisine=steak | cuisine=grill | cuisine=steak_house
 # OpenMapChest: This makes categories for bagel and donut shops work.
 cuisine=bagel | cuisine~'.*donut.*'
     [0x2a0d resolution 24]
-# OpenMapChest
+# OpenMapChest: End
 cuisine=cafe | cuisine=diner | cuisine=coffee_shop
     [0x2a0e resolution 24]
 cuisine=french
@@ -441,17 +452,24 @@ landuse=cemetery | landuse=cemetary | amenity=grave_yard [0x6403 resolution 24]
 (landuse=wood | landuse=forest | natural=wood) & name=* [0x6618 resolution 24]
 
 # OpenMapChest: Extra POIs.
-building=yes [0x6402 resolution 24]
+building=yes & name=* [0x6402 resolution 24]
 landuse=retail & name=* [0x2e00 resolution 20]
 landuse=residential & name=* [0x6400 resolution 20]
 landuse=industrial & name=* [0x6400 resolution 22]
 landuse=commercial & name=* [0x6400 resolution 22]
 landuse=* & name=* [0x6400 resolution 22]
-reference_point=yes [0x2c04 resolution 22]
+reference_point=yes & name=* [0x2c04 resolution 22]
 # OpenMapChest
 
 <finalize>
 # The finalizer section is executed for each element when a rule with an element type matches
 
 name=* {name '${name}'}
+# OpenMapChest: Add branch name to POI name when set.
+mkgmap:label:1=* & branch=* { set mkgmap:label:1='${name} ${branch}' }
+# OpenMapChest: END
 include 'inc/address';
+
+#amenity=place_of_worship {echotags ""}
+#mkgmap:region=* {echolabels ""}
+#addr:street=* {echotags ""}

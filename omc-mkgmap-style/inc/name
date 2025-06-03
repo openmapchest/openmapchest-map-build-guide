@@ -15,7 +15,10 @@ brand=${name}     { delete brand; }
 
 # None of operator, brand given
 ref=* & (operator!=* & brand!=*) & (highway=bus_stop | railway=tram_stop | railway=halt | railway=station) { name '${name} ${ref}' | '${ref}' }
-ref=* & (operator!=* & brand!=*) { name '${ref} ${name}' | '${ref}' }
+# OpenMapChest: Don't add ref to shop names.
+#ref=* & (operator!=* & brand!=*) { name '${ref} ${name}' | '${ref}' }
+ref=* & (operator!=* & brand!=* & shop!=*) { name '${ref} ${name}' | '${ref}' }
+# End OpenMapChest
 
 # OpenMapChest: Disable default operator / brand rules.
 # Both operator and brand given
@@ -59,6 +62,6 @@ operator=* & brand=* { name '${int_name}' | '${name:int}' | '${name:en}' | '${br
 operator=* & brand!=* { name '${name}' | '${ref}' }
 brand=* & operator!=* { name '${int_name}' | '${name:int}' | '${name:en}' | '${brand}' | '${ref}' }
 
-name='British Petroleum' { name 'BP' }
-name='The Home Depot' { name 'Home Depot' }
+name='British Petroleum' | mkgmap:label:1='British Petroleum' { set mkgmap:label:1='BP' }
+name='The Home Depot' | mkgmap:label:1='The Home Depot' { set mkgmap:label:1='Home Depot' }
 # OpenMapChest

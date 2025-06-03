@@ -30,8 +30,8 @@ prefix1:ca = "Avinguda", "Carrer"
 prefix2:ca = "de las ", "de los ", "de la ", "del ", "de ", "d'"
 
 # english
-prefix1:en = "East ", "E ", "North ", "N ", "South ", "S ", "West ", "W "
-suffix:en = " St", " Rd", " Ave", " Cres", " Cv", " Dr", " Cir", " Blvd", " Pkwy", " Pl", " Ct",  " Trl", " Ln", " Sq"
+prefix1:en = "N ", "E ", "S ", "W ", "NE ", "NW ", "SE ", "SW "
+suffix:en = " Ave", " Blvd", " Cir", " Cres", " Ct", " Cv", " Dr", " Ln", " Pkwy", " Pl", " Rd", " Sq", " St", " Trl"
 #
 # UK road names don't have prefixes, eg "North View" and "South View" are unlikely to be connected.
 # So, via Section 2 (country to language mapping), have different prefix/suffix for the UK:
@@ -40,8 +40,13 @@ suffix:en = " St", " Rd", " Ave", " Cres", " Cv", " Dr", " Cir", " Blvd", " Pkwy
 #suffix:en_gb = " Arcade", " Avenue", " Boulevard", " Circus", " Close", " Court", " Crescent", " Croft", " Drive", " Field", " Fields", " Gardens", " Gate", " Grove", " Hill", " Lane", " Mews", " Parade", " Park", " Passage", " Place", " Rise", " Road", " Square", " Street", " Terrace", " View", " Villas", " Walk", " Way", " Wood", " Yard"
 
 # french
-prefix1:fr = "Allée", "Ave", "Blvd", "Ch", "Pl", "Rue", "Route"
+# TODO: Don't use the street type abbreviations in French because it's not clear to me if this is correct.
+#       The road-abbreviation filter needs to be updated if/when these are used.
+# prefix1:fr = "All", "Av", "Bd", "Ch", "Pl", "R", "Rt"
+prefix1:fr = "Allée", "Avenue", "Boulevard", "Chemin", "Place", "Rue", "Route"
 prefix2:fr = "de la ", "du ", "de ", "des ", "d'", "de l'"
+# The abbreviated directions are for Quebec, non-abbreviated directions are for other French countries.
+suffix:fr = " N", " E", " S", " O", " Nord", " Est", " Sud", " Ouest"
 
 # galician
 prefix1:gl = "Rua", "Avenida", "Travessa"
@@ -73,6 +78,7 @@ prefix2:es = "de las ", "de los ", "de la ", "del ", "de ", "d'", "las ", "los "
 lang:AGO = pt
 lang:AND = es, ca
 lang:ARG = es
+lang:AUS = en
 lang:BOL = es
 lang:BRA = pt
 lang:BWA = en_gb
@@ -93,11 +99,13 @@ lang:GNB = pt
 lang:GTM = es
 lang:GUY = en
 lang:HND = es
+lang:IRL = en
 lang:KEN = en_gb
 lang:MEX = es
 lang:MOZ = pt
 lang:MWI = en_gb
 lang:NIC = es
+lang:NZL = en
 lang:PAN = es
 lang:PER = es
 lang:PRI = es

@@ -10,24 +10,6 @@ CodePage=1252
 [_drawOrder]
 [end]
 
-[_line]
-Type=0x01800
-;121
-;typ=7
-String1=0x4,stream
-UseOrientation=Y
-ExtendedLabels=Y
-FontStyle=Default
-CustomColor=No
-Xpm="32 2 4 1"
-"0 c #0065FF"
-"1 c none"
-"2 c #0000FF"
-"3 c none"
-"00000001111111100000000111111111"
-"00000001111111100000000111111111"
-[end]
-
 [_point]
 Type=0x06417
 ;&36A pointers:&6D2

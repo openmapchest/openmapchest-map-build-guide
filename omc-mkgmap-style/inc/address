@@ -25,10 +25,13 @@ mkgmap:country=DEU & mkgmap:city!=* & mkgmap:admin_level6=* { set mkgmap:city='$
 mkgmap:country=DEU & mkgmap:city!=* & mkgmap:admin_level9=* { set mkgmap:city='${mkgmap:admin_level9|subst:Gemeinde |subst:Stadt }' }
 mkgmap:country=DEU & mkgmap:city!=* & mkgmap:admin_level10=* { set mkgmap:city='${mkgmap:admin_level10|subst:Gemeinde |subst:Stadt }' }
 
-# OpenMapChest: Add ACT suburbs
-# Austrailia = AUS
-mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level4='Australian Capital Territory' & mkgmap:admin_level9=* {set mkgmap:city='${mkgmap:admin_level9}' }
-mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level4='Australian Capital Territory' & mkgmap:admin_level7=* {set mkgmap:city='${mkgmap:admin_level7|subst:District of }' }
+# OpenMapChest: Add proper addresses
+# Australia = AUS - suburbs are used for the city names
+mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level9=* {set mkgmap:city='${mkgmap:admin_level9}' }
+mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level6=* {set mkgmap:city='${mkgmap:admin_level6|subst:City of }}' }
+# Remove 'District of' prefix which is part of the district names in the ACT. Districts aren't actually used in Australia for address search so this is only here a fallback.
+mkgmap:country=AUS & mkgmap:city!=* & mkgmap:admin_level7=* {set mkgmap:city='${mkgmap:admin_level7|subst:District of }' }
+mkgmap:country=AUS & mkgmap:region!=* { set mkgmap:region='${mkgmap:admin_level4|subst:Australian Capital Territory=>ACT|subst:New South Wales=>NSW|subst:Northern Territory=>NT|subst:Queensland=>QLD|subst:South Australia=>SA|subst:Tasmania=>TAS|subst:Victoria=>VIC|subst:Western Australia=>WA}' }
 # OpenMapChest: END
 
 # Austria = AUT
@@ -135,7 +138,7 @@ mkgmap:postal_code!=* & mkgmap:postcode=* { set mkgmap:postal_code='${mkgmap:pos
 mkgmap:postal_code!=* & addr:postcode=* { set mkgmap:postal_code='${addr:postcode}' } 
 
 # OpenMapChest
-# Convert street type to abbriviation. The same subst chain needs to be used in lines.
+# Convert street type to abbreviation. The same subst chain needs to be used in lines.
 #mkgmap:street!=* & addr:street=* { set mkgmap:street='${addr:street}' }
 mkgmap:street!=* & addr:street=* { set mkgmap:street='${addr:street|subst: Street=> St|subst: Avenue=> Ave|subst: Road=> Rd|subst: Crescent=> Cres|subst: Cove=> Cv|subst: Drive=> Dr|subst: Circle=> Cir|subst: Boulevard=> Blvd|subst: Parkway=> Pkwy|subst: Place=> Pl|subst: Court=> Ct|subst: Trail=> Trl|subst: Lane=> Ln|subst: Square=> Sq|subst:Chemin =>Ch |subst: North=> N|subst: South=> S|subst: East=> E|subst: West=> W|subst:North =>N |subst:South =>S |subst:East =>E |subst:West =>W |subst: Nord=> N|subst: Sud=> S|subst: Est=> E|subst: Ouest=> O|subst:Nord =>N |subst:Sud =>S |subst:Est =>E |subst:Ouest =>O }' }
 # OpenMapChest
@@ -143,8 +146,16 @@ mkgmap:street!=* & addr:housename=* { set mkgmap:street='${addr:housename}' }
 
 mkgmap:housenumber!=* & addr:housenumber=* { set mkgmap:housenumber='${addr:housenumber}' }
 
-mkgmap:phone!=* & phone=* { set mkgmap:phone='${phone}' }
-mkgmap:phone!=* & contact:phone=* { add mkgmap:phone='${contact:phone}' }
+# OpenMapChest: Remove +1 in phone number in Canada and the US.
+mkgmap:phone!=* & phone=* & (mkgmap:country=CAN | mkgmap:country=USA)
+  { set mkgmap:phone='${phone|subst:.*([0-9][0-9][0-9])(?:.*)?([0-9][0-9][0-9])(?:.*)?([0-9][0-9][0-9][0-9])$~>$1-$2-$3}' }
+mkgmap:phone!=* & contact:phone=* & (mkgmap:country=CAN | mkgmap:country=USA)
+  { add mkgmap:phone='${contact:phone|subst:.*([0-9][0-9][0-9])(?:.*)?([0-9][0-9][0-9])(?:.*)?([0-9][0-9][0-9][0-9])$~>$1-$2-$3}' }
+mkgmap:phone!=* & phone=* & mkgmap:country!=CAN & mkgmap:country!=USA
+  { set mkgmap:phone='${phone}' }
+mkgmap:phone!=* & contact:phone=* & mkgmap:country!=CAN & mkgmap:country!=USA
+  { add mkgmap:phone='${contact:phone}' }
+# OpenMapChest: END
 
 mkgmap:is_in!=* & is_in=* { set mkgmap:is_in='${is_in}' }
 

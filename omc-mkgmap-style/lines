@@ -55,11 +55,18 @@ highway=motorway | highway=motorway_link {add oneway=yes; add mkgmap:numbers=fal
 # which may add info to a part of these highway=*_link roads:
 # motorway_link, trunk_link, primary_link, secondary_link, tertiary_link
 # build destination hint
-mkgmap:dest_hint=* {
+# OpenMapChest: Special handling for motorway ref in USA
+mkgmap:admin_level2!=USA & mkgmap:admin_level2!=CAN & mkgmap:dest_hint=* {
     set tmp:dest_hint='${destination:ref|subst: =>} ${mkgmap:dest_hint|subst:;=> |subst:/=> }' |
                       '${ref|subst: =>} ${mkgmap:dest_hint|subst:;=> |subst:/=> }' |
                       '${mkgmap:dest_hint|subst:;=> |subst:/=> }';
     }
+(mkgmap:admin_level2=USA | mkgmap:admin_level2=CAN) & mkgmap:dest_hint=* {
+    set tmp:dest_hint='${destination:ref|subst:"I(-| )*(\d+)(.*)~>I-$2$3"} ${mkgmap:dest_hint|subst:;=> |subst:/=> }' |
+                      '${ref|subst: =>} ${mkgmap:dest_hint|subst:;=> |subst:/=> }' |
+                      '${mkgmap:dest_hint|subst:;=> |subst:/=> }';
+    }
+# OpenMapChest: end
 # build exit hint
 mkgmap:exit_hint=true {
     set tmp:exit_hint='Exit ${mkgmap:exit_hint_ref} ${mkgmap:exit_hint_name}' |
@@ -70,13 +77,28 @@ mkgmap:exit_hint=true {
     }
 # use destination hint and/or exit hint to build name
 mkgmap:exit_hint=true | mkgmap:dest_hint=* {name '${tmp:exit_hint} ${tmp:dest_hint}' | '${tmp:dest_hint}' | '${tmp:exit_hint}'}
+# OpenMapChest: Remove duplicate text on exits
+# Maybe update to remove more duplicates:
+# '^Exit (.*?)([\w-]+)(.*?)?\2(.*?) '
+#     Exit Hoorn-Noord Hoorn-Noord Enkhuizen Lelystad
+#     Exit 9 Hoorn-Noord N307 Hoorn-Noord Enkhuizen Lelystad
+#     Exit 9 Hoorn-Noord Hoorn-Noord Enkhuizen Lelystad
+#
+# Exit $1$2$3$4
+#     Exit Hoorn-Noord Enkhuizen Lelystad
+#     Exit 9 Hoorn-Noord N307 Enkhuizen Lelystad
+#     Exit 9 Hoorn-Noord Enkhuizen Lelystad
+#
+(mkgmap:exit_hint=true | mkgmap:dest_hint=*) & mkgmap:label:1=*
+    { set mkgmap:label:1='${mkgmap:label:1|subst:^Exit ([\w+-]) \1(.*)$~>Exit $1$2}' }
+# OpenMapChest: END
 # end of rules for process-exits and process-destination options
 
 # Flag paved roads
 highway=* & (surface=asphalt | surface=paved | surface=sett |
     surface=concrete | surface=concrete:lanes | surface=concrete:plates |
     surface=paving_stones | surface=cobblestone |
-    surface=cobblestone:flattened | surface=metal | surface=wood)
+    surface=cobblestone:flattened | surface=metal | surface=wood | surface=chipseal)
     {set mkgmap:unpaved=0}
 highway=* & tracktype=grade1 & surface!=* {set mkgmap:unpaved=0}
 
@@ -115,8 +137,10 @@ highway=path & (designation=permissive_bridleway | designation=public_bridleway)
     {set highway=bridleway; add foot=yes}
 highway=path & (designation=permissive_footpath | designation=public_footpath)
     {set highway=footway; add foot=designated}
+# OpenMapChest
 highway=footway & snowplowing!=no & (bicycle=yes | bicycle=designated | bicycle=permissive | bicycle=official | cycleway=lane)
     {set highway=cycleway; set bicycle=yes; set foot=yes}
+# End OpenMapChest
 highway=path & snowplowing!=no & (bicycle=designated | bicycle=permissive | bicycle=official | cycleway=lane)
     {set highway=cycleway; add foot=yes}
 highway=path & foot=designated
@@ -128,7 +152,7 @@ highway=footway & footway=sidewalk { deletealltags }
 highway=footway & footway=crossing { deletealltags }
 # Remove private driveways
 access=private & highway=service & service=driveway { deletealltags }
-# OpenMapChest
+# End OpenMapChest
 
 leisure=track & area!=yes {name '${name} (${sport})' | '${sport}'} [0x30 resolution 22]
 man_made=pier | man_made=piste:halfpipe {add highway=footway; name '${ref} ${name}' | '${ref}' | '${name}'}
@@ -322,7 +346,7 @@ include 'inc/address';
 include 'inc/roadspeed';
 # calculate the access rules
 include 'inc/access';
-                                   
+
 #limit artificial cycleways to resolution 24
 mkgmap:synthesised=yes & mkgmap:bicycle=yes {set mkgmap:highest-resolution-only=true}
 
@@ -367,23 +391,23 @@ mkgmap:admin_level2=USA & highway=* & mkgmap:label:1!=* & mkgmap:label:2!=* & hi
     set usa_hwy_ref_combined_dash='${ref|subst:"^([A-Z]+)(-| )*(\d+)~>$1-$3"}'
   }
 usa_hwy_ref_letters=I
-  { name '${usa_hwy_ref_numbers|highway-symbol:interstate}'; addlabel 'I-${usa_hwy_ref_numbers}'; echotags "Fallback US Interstate used"; }
+  { name '${usa_hwy_ref_numbers|highway-symbol:interstate}'; addlabel 'I-${usa_hwy_ref_numbers}'; echo "Fallback US Interstate rule used"; }
 usa_hwy_ref_letters=US
-  { name '${usa_hwy_ref_numbers|highway-symbol:shield}'; addlabel 'US ${usa_hwy_ref_numbers}'; echotags "Fallback US Route used"; }
+  { name '${usa_hwy_ref_numbers|highway-symbol:shield}'; addlabel 'US ${usa_hwy_ref_numbers}'; echo "Fallback US Route rule used"; }
 # State highways are prefixed in OSM with SR, the state code, or M in Michigan.
 usa_hwy_ref_letters~'SR|AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|M|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY'
-  { name '${usa_hwy_ref_numbers|highway-symbol:round}'; addlabel '${name}' | 'Hwy ${usa_hwy_ref_numbers}'; echotags "Fallback State Highway used"; }
+  { name '${usa_hwy_ref_numbers|highway-symbol:round}'; addlabel '${name}' | 'Hwy ${usa_hwy_ref_numbers}'; echo "Fallback State Highway rule used"; }
 
 # Might need this for ref=I 78;NJTP or multiple interstates ... WIP
 #mkgmap:admin_level2=USA & mkgmap:admin_level4='New Jersey' & highway=* & mkgmap:label:1!=* & mkgmap:label:2!=* & highway~'^(?!.*_link).*$' & ref~'(?:I[ \-]*\d+)'
 #  {
 #  $0 gets full match don't know what it would do with 2 interstates.
 #  	set usa_interstate_ref_number='${ref|subst:"(?:I[ \-]*\d+)~>$0"}';
-#	 	name '${usa_interstate_ref_number|highway-symbol:interstate}'; addlabel 'I-${usa_interstate_ref_number}'; echotags "Fallback 2 US Interstate used";
+#	 	name '${usa_interstate_ref_number|highway-symbol:interstate}'; addlabel 'I-${usa_interstate_ref_number}'; echotags "Fallback 2 US Interstate rule used";
 #  }
 
 # Some States have minor road references that should also have a symbol.
-# NJ: CR - Note: The dash is removed eventhough the docs say only spaces are removed.
+# NJ: CR - Note: The dash is removed even though the docs say only spaces are removed.
 mkgmap:admin_level2=USA & mkgmap:admin_level4='New Jersey' & usa_hwy_ref_letters=CR
   { name '${usa_hwy_ref_combined_dash|highway-symbol:oval}'; addlabel 'CR-${usa_hwy_ref_numbers} ${name}' | 'CR-${usa_hwy_ref_numbers}'; }
 
@@ -400,9 +424,35 @@ mkgmap:admin_level2=USA & mkgmap:admin_level4='New Jersey' & usa_hwy_ref_letters
 # usa_interstate=true & name!=*
 #  { name '${usa_interstate_shield_number|highway-symbol:interstate}'; addlabel '${usa_interstate_name}' }
 
-# Previoulsy added oval sheild to highway=unclassified and highway=track as well. Could be re-added below with
+# Previously added oval shield to highway=unclassified and highway=track as well. Could be re-added below with
 # (highway=secondary | highway=tertiary | highway=unclassified | highway=track) & ref=* {name '${ref|highway-symbol:oval}'; addlabel '${name}'}
 # highway=* & ref=* & highway!=motorway & highway!=trunk & highway!=primary & highway!=secondary & highway!=tertiary & highway=unclassified & highway=track
+
+# NL N-roads and A Highways
+#
+# Use `add mkgmap:label:3='${name}';` so that the name is used for address search and not for routing directions.
+# We don't use network= in the test because the network relations don't deal with duplicate networks; later networks
+# override previously set networks (e.g. network=e-road overrides network=NL:A).
+#
+# NOTE: subst doesn't support regex feature '[0-9]{1,3}' because it thinks the last '}' is end of the subst.
+#
+# N-roads
+# The exclude version allowed to many types of highways that we didn't want.
+# mkgmap:admin_level2=NLD & highway=* & highway~'^(?!.*_link$).*' & junction!=roundabout & junction!=circular & highway!=service & & mkgmap:nl_nroad!=* & ref~'^N[\s-]*([0-9]{1,3})$'
+mkgmap:admin_level2=NLD & mkgmap:nl_nroad!=*
+  & (highway=construction | highway=motorway | highway=primary | highway=residential | highway=secondary | highway=tertiary | highway=trunk | highway=unclassified)
+  & ref~'^N[\s-]*([0-9]{1,3})$'
+		{ set mkgmap:nl_nroad='${ref|subst:^N[\s-]*(.*)$~>N$1}'; echotags "Fallback NL N-road rule used"; }
+highway=* & mkgmap:nl_nroad=*
+  { name '${mkgmap:nl_nroad|highway-symbol:box}'; addlabel '${mkgmap:nl_nroad}'; addlabel '${name}'; }
+mkgmap:nl_nroad=* & (highway=motorway | (highway=* & maxspeed>=100 & oneway=yes))
+  { add mkgmap:fast_road=yes; echotags "NL N-road fast-road rule used"; }
+
+# A-highways
+mkgmap:admin_level2=NLD & mkgmap:nl_highway!=* & highway=motorway & ref~'^A[\s-]*([0-9]{1,3})$'
+	{ set mkgmap:nl_highway='${ref|subst:^A[\s-]*(.*)$~>A$1}'; add mkgmap:fast_road=yes; echotags "Fallback NL A-highway rule used"; }
+highway=* & mkgmap:nl_highway=*
+  { name '${mkgmap:nl_highway|highway-symbol:hbox}'; addlabel '${mkgmap:nl_highway}'; addlabel '${name}'; }
 
 # OpenMapChest: END
 
@@ -418,3 +468,6 @@ highway=* & ref=* & highway!=motorway & highway!=trunk & highway!=primary & high
 highway=* & int_ref=* {addlabel '${int_ref}'}
 highway=* & nat_ref=* {addlabel '${nat_ref}'}
 highway=* & reg_ref=* {addlabel '${reg_ref}'}
+
+# highway=* {echolabels ""}
+# highway=* {echotags ""}
