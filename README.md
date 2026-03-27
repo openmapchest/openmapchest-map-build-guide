@@ -1,12 +1,12 @@
 # No longer maintained
 
-These instructions are no longer maintained and I will eventually archive and/or remove this repo.
-There had been very little interest in this and it's not worth the effort to keep it up-to-date.
+These instructions are no longer maintained and I will eventually archive and/or remove this repo. Please fork and/or copy this repo if you're using it.
+There was very little interest in these instructions and unfortunately it's not worth the effort to keep it going.
 
-I periodically post patches to the mkgmap-dev list, but the development not very active so I don't know if my changes
-will ever be integrated into mkgmap.
+I periodically post patches to the mkgmap-dev list, but the development is not very active so I don't know if my changes
+will ever be integrated into the main mkgmap repo.
 
-I made one last update and these instructions still work to produce a decent map. But of course, 
+I made one last update and these instructions still work to produce a decent map. But 
 you will see some differences in your maps compared to the pre-compiled versions on https://openmapchest.org. These differences will
 increase over time.
 
